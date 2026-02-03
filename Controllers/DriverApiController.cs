@@ -61,7 +61,38 @@ namespace TransportService.Controllers.api
            }
         }
 
-        [HttpGet]
+         [HttpGet("getdriver")]
+        public async Task<IActionResult> GetDriverAsync()
+
+        {
+           if (_context == null)
+               return StatusCode(500, "Database context is not available.");
+         
+           //if (!_cache.TryGetValue(cacheKey, out List<TransportEntry>? transData))
+            var driver = await (from d in _context.Driver
+                                                                         
+              select new
+              {
+                    d.ID,
+                    d.Name,
+              })
+              .ToListAsync();
+               // where te.ID == page && dg.ID == pageSize
+              
+      
+           if (driver != null)
+           {
+               return Ok(driver);
+           }
+           else
+           {
+               return NotFound();
+           }
+
+        }
+
+
+        [HttpGet("getall/{page}/{pageSize}")]
         public async Task<IActionResult> GetAllAsync(int page, int pageSize)
         {
            if (_context == null)

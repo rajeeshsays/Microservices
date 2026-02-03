@@ -57,12 +57,32 @@ namespace TransportService.Controllers.api
            }
         }
 
-        [HttpGet]
+        [HttpGet("getlocation")]
+        public async Task<IActionResult> GetLocationAsync()
+        {
+            var locations = await (from x in  _context.Location select  new
+            {
+                x.ID,
+                x.Name
+            }).ToListAsync();
+
+            if (locations != null)
+            {
+                return Ok(locations);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+
+        [HttpGet("getall/{page}/{pageSize}")]
         public async Task<IActionResult> GetAllAsync(int page, int pageSize)
         {
            if (_context == null)
                return StatusCode(500, "Database context is not available.");
-           string cacheKey = $"TransportEntryData_page{page}_pageSize_{pageSize}";
+           string cacheKey = $"LocationData_page{page}_pageSize_{pageSize}";
            //if (!_cache.TryGetValue(cacheKey, out List<TransportEntry>? transData))
             var locations = await (from te in _context.Location
                                                                          

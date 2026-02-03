@@ -6,11 +6,12 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/AdhiSreeTransportService/bin/Debug/net8.0/AdhiSreeTransportService.dll",
+      "program": "${workspaceFolder}/bin/Debug/net8.0/AdhiSreeTransportService.dll",
       "args": [],
       "cwd": "${workspaceFolder}/AdhiSreeTransportService",
       "stopAtEntry": false,
       "console": "integratedTerminal",
+      
       "serverReadyAction": {
         "action": "openExternally",
         "pattern": "\\bNow listening on:\\s+(https?://\\S+)"

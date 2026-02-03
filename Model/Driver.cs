@@ -22,6 +22,10 @@ namespace TransportService.Model
         [StringLength(256)]
         public string? AddressLine2 { get; set; }
 
+        public string LicenceNo { get; set; } = string.Empty;
+
         public int AccountId { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }

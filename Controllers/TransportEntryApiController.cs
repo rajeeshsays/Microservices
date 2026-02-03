@@ -43,26 +43,48 @@ namespace TransportService.Controllers.api
            var transData = await _context.TransportEntry.Where(x => x.ID == id)
                                                   
               .SingleOrDefaultAsync();
-          var destinationGroups = await _context.DestinationGroups.Where(x=>x.TransportId == id ).ToListAsync();
-              
-           if (transData != null && destinationGroups != null)
-           {
-               foreach (var group in destinationGroups)
-               {
-                   _context.Entry(group).Reference(dg => dg.Party).Load();
-                   transData.DestinationGroups.Add(group);
-               }    
-           }
- 
+          var destinationGroups = await _context.DestinationGroups.Where(x=>x.TransportId == id )
+          .Select(x=>x.DestinationId        
+          
+          ).ToArrayAsync<short>();
+        
+
+           var transportEntryDto = new TransportEntryDto
+            {   
+            ID = transData.ID,
+            Date = transData.Date,
+            VehicleId = transData.VehicleId,
+            VehicleTypeId = transData.VehicleTypeId,
+            DriverId = transData.DriverId,
+            Party1 = transData.Party1,           
+            DestinationGroupId = transData.DestinationGroupId,
+            DestinationGroups = destinationGroups,
+            From = transData.From,
+            To = transData.To,
+            StartKM = transData.StartKM,
+            CloseKM = transData.CloseKM,
+            Total = transData.Total,
+            Loading = transData.Loading,
+            Unloading = transData.Unloading,
+            LoadingCommision = transData.LoadingCommision,
+            UnloadingCommision = transData.UnloadingCommision,
+            //public string ReturnDestination { get; set; }
+            ReturnDestinationId = transData.ReturnDestinationId,
+            HaltDays = transData.HaltDays,
+            Rent = transData.Rent,
+            Narration = transData.Narration,        
+            Other = transData.Other,
+            AccountId = transData.AccountId,
+            };
 
 
            var cacheEntryOptions = new MemoryCacheEntryOptions()
                .SetSlidingExpiration(TimeSpan.FromMinutes(10))
                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
            var x = 1;
-           if (transData != null)
+           if (transportEntryDto != null)
            {
-               return Ok(transData);
+               return Ok(transportEntryDto);
            }
            else
            {
@@ -78,15 +100,15 @@ namespace TransportService.Controllers.api
            string cacheKey = $"TransportEntryData_page{page}_pageSize_{pageSize}";
            //if (!_cache.TryGetValue(cacheKey, out List<TransportEntry>? transData))
            var transData = await (
-    from te in _context.TransportEntry
-        .Include(te => te.Vehicle)
+            from te in _context.TransportEntry
+            .Include(te => te.Vehicle)
 
-    join dg in _context.DestinationGroups
-        on te.ID equals dg.TransportId into dgGroup
+            join dg in _context.DestinationGroups
+            on te.ID equals dg.TransportId into dgGroup
 
-    from dg in dgGroup.DefaultIfEmpty()
-    select te
-).Distinct().ToListAsync();
+            from dg in dgGroup.DefaultIfEmpty()
+            select te
+            ).Distinct().ToListAsync();
                // where te.ID == page && dg.ID == pageSize
               
            var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -104,19 +126,18 @@ namespace TransportService.Controllers.api
 
         }
 
- 
-   [HttpPost("create")]
-public async Task<IActionResult> CreateAsync([FromBody] TransportModel transportData)
-{
-    if (transportData?.TransportEntry == null ||
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateAsync([FromBody] TransportModel transportData)
+        {
+        if (transportData?.TransportEntry == null ||
         transportData.DestinationGroup?.DestinationIds == null ||
         !transportData.DestinationGroup.DestinationIds.Any())
-    {
-        return BadRequest("Invalid transport entry or destination group data.");
-    }
+        {
+        return BadRequest("Invalid transport entry or destination group data." + " Please check the input data."+transportData?.TransportEntry);
+        }
 
-    try
-    {
+        try
+        {
         // 1️⃣ Create TransportEntry (PARENT)
         var transportEntry = new TransportEntry
         {
@@ -134,13 +155,15 @@ public async Task<IActionResult> CreateAsync([FromBody] TransportModel transport
             Unloading = transportData.TransportEntry.Unloading,
             LoadingCommision = transportData.TransportEntry.LoadingCommision,
             UnloadingCommision = transportData.TransportEntry.UnloadingCommision,
-            ReturnDestinationId = transportData.TransportEntry.ReturnDestinationId,
+            ReturnDestinationId = transportData.TransportEntry.ReturnDestinationId == 0 ? 1 : transportData.TransportEntry.ReturnDestinationId,
             HaltDays = transportData.TransportEntry.HaltDays,
             Rent = transportData.TransportEntry.Rent,
             Narration = transportData.TransportEntry.Narration,
             Other = transportData.TransportEntry.Other,
-            AccountId = transportData.TransportEntry.AccountId
+            AccountId = transportData.TransportEntry.AccountId,
+            DestinationGroupId  = 0
         };
+
 
         await _context.TransportEntry.AddAsync(transportEntry);
 
@@ -159,7 +182,7 @@ public async Task<IActionResult> CreateAsync([FromBody] TransportModel transport
             }).ToList();
 
         await _context.DestinationGroups.AddRangeAsync(destinationGroups);
-
+        transportEntry.DestinationGroupId = destinationGroups.First().TransportId;
         // 5️⃣ Save children
         await _context.SaveChangesAsync();
 
@@ -178,15 +201,15 @@ public async Task<IActionResult> CreateAsync([FromBody] TransportModel transport
 
 
         // PUT api/<SalesController>/5
-[HttpPut("{id}")]
-public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model)
-{
-    if (model?.TransportEntry == null ||
-        model.DestinationGroup?.DestinationIds == null ||
-        !model.DestinationGroup.DestinationIds.Any())
-    {
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAsync(int id, [FromBody] TransportModel model)
+        {
+            if (model?.TransportEntry == null ||
+                model.DestinationGroup?.DestinationIds == null ||
+                !model.DestinationGroup.DestinationIds.Any())
+        {   
         return BadRequest("Invalid transport entry or destination group data.");
-    }
+        }
 
     // Fetch existing TransportEntry
     var transportEntry = await _context.TransportEntry
@@ -198,7 +221,7 @@ public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model
         return NotFound($"Transport entry with ID {id} not found.");
     }
 
-    await using var transaction = await _context.Database.BeginTransactionAsync();
+    //await using var transaction = await _context.Database.BeginTransactionAsync();
 
     try
     {
@@ -219,7 +242,7 @@ public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model
         transportEntry.Unloading = dto.Unloading;
         transportEntry.LoadingCommision = dto.LoadingCommision;
         transportEntry.UnloadingCommision = dto.UnloadingCommision;
-        transportEntry.ReturnDestinationId = dto.ReturnDestinationId;
+        transportEntry.ReturnDestinationId = dto.ReturnDestinationId == 0 ? 1 : dto.ReturnDestinationId;
         transportEntry.HaltDays = dto.HaltDays;
         transportEntry.Rent = dto.Rent;
         transportEntry.Narration = dto.Narration;
@@ -240,7 +263,7 @@ public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model
 
         // 4️⃣ Save changes
         await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
+        //await transaction.CommitAsync();
 
         return Ok(new
         {
@@ -248,9 +271,9 @@ public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model
             TransportId = transportEntry.ID
         });
     }
-    catch (Exception)
+    catch (Exception Ex)
     {
-        await transaction.RollbackAsync();
+        //await transaction.RollbackAsync();
         return StatusCode(500, "Failed to update the transport entry record.");
     }
 }
@@ -280,7 +303,6 @@ public async Task<IActionResult> PutAsync(int id,[FromBody] TransportModel model
         //        _cache.Remove(key);
         //    }
         // }
-
     }
 }
 

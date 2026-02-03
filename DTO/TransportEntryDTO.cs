@@ -8,9 +8,9 @@ namespace TransportService.Model
         public class TransportEntryDto
         {
             
-            public long ID { get; set; }
+            public long ID { get; set; } = 0;
 
-            public DateTime Date { get; set; }
+            public DateTime Date { get; set; } = DateTime.Now;
 
             // Foreign Key
             public short VehicleId { get; set; }
@@ -18,7 +18,7 @@ namespace TransportService.Model
             // Navigation property
             public short VehicleTypeId { get; set; }
 
-
+            
 
             public short DriverId { get; set; }
 
@@ -27,7 +27,7 @@ namespace TransportService.Model
             
             public long DestinationGroupId { get; set; }
 
-
+            public short[] DestinationGroups { get; set; }
             public int From { get; set; }
 
             public int To { get; set; }
