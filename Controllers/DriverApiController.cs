@@ -120,7 +120,8 @@ namespace TransportService.Controllers.api
         }
 
  
-       [HttpPost]
+       [HttpPost("create")]
+
         public async Task<IActionResult> CreateAsync([FromBody] Driver driverModel)
         {
            if (driverModel   == null)

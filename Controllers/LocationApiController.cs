@@ -106,13 +106,22 @@ namespace TransportService.Controllers.api
 
  
        [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] Location locationModel)
+        public async Task<IActionResult> CreateAsync([FromBody] LocationDTO locationModel)
         {
            if (locationModel   == null)
                return BadRequest("Invalid location data.");
            try
            {
-               await _context.Location.AddAsync(locationModel);  
+               Location locationEntity = new Location
+               {
+                   Name = locationModel.Name,
+                   Code = locationModel.Code,
+                   Description = locationModel.Description,
+                   DistrictId = locationModel.DistrictId,
+                   IsActive = locationModel.IsActive.ToString().ToLower() == "true" ? true : false
+               };
+
+               await _context.Location.AddAsync(locationEntity);  
                await _context.SaveChangesAsync();
                return Ok("Location record created successfully.");
            }

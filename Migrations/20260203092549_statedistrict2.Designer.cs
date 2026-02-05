@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TransportService.DataAccess;
 
@@ -11,9 +12,11 @@ using TransportService.DataAccess;
 namespace AdhiSreeTransportService.Migrations
 {
     [DbContext(typeof(TransportServiceDBContext))]
-    partial class TransportServiceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260203092549_statedistrict2")]
+    partial class statedistrict2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -191,29 +194,12 @@ namespace AdhiSreeTransportService.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("AddressLine1")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
 
                     b.Property<string>("AddressLine2")
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("ContactPerson")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("GstNo")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Mobile")
                         .IsRequired()
@@ -224,11 +210,6 @@ namespace AdhiSreeTransportService.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<string>("OfficePhone")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("varchar(80)");
 
                     b.Property<string>("Pincode")
                         .IsRequired()

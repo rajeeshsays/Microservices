@@ -57,7 +57,8 @@ namespace TransportService.Controllers.api
            }
         }
 
-        [HttpGet]
+        [HttpGet("getall/{page}/{pageSize}")]
+
         public async Task<IActionResult> GetAllAsync(int page, int pageSize)
         {
            if (_context == null)
@@ -85,27 +86,46 @@ namespace TransportService.Controllers.api
         }
 
  
-       [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] Party partyModel)
+       [HttpPost("create")]
+        public async Task<IActionResult> CreateAsync([FromBody] PartyDTO partyModel)
         {
-           if (partyModel   == null)
-               return BadRequest("Invalid party data.");
+            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+             Party partyEntity = new Party
+            {
+                Name = partyModel.Name,
+                Code = partyModel.Code,
+                AddressLine1 = partyModel.AddressLine1,
+                AddressLine2 = partyModel.AddressLine2,
+                Mobile = partyModel.Mobile,
+                Pincode = partyModel.Pincode,
+                AccountId = partyModel.AccountId,
+                GstNo = partyModel.GstNo,
+                OfficePhone = partyModel.OfficePhone,
+                ContactPerson = partyModel.ContactPerson,
+                IsActive = partyModel.IsActive.ToLower() == "true" ? true : false
+            };
+
+         if (partyModel   == null)
+             return BadRequest("Invalid party data.");
            try
-           {
-               await _context.Party.AddAsync(partyModel);  
-               await _context.SaveChangesAsync();
-               return Ok("Party record created successfully.");
+           { 
+            await _context.Party.AddAsync(partyEntity);  
+             await _context.SaveChangesAsync();
+                return Ok("Party record created successfully.");
            }
-           catch
+            catch (Exception ex)
            {
                return StatusCode(500, "Failed to create the party record.");
            }
-
+ 
         }
+    
 
         // PUT api/<SalesController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] Party partyEntryForUpdate)
+        public async Task<IActionResult> PutAsync(int id, [FromBody] PartyDTO partyEntryForUpdate)
         {
            if (partyEntryForUpdate == null)
                return BadRequest("Invalid party data.");
@@ -113,7 +133,27 @@ namespace TransportService.Controllers.api
            //bool success = await _transportEntryDA.UpdateAsync(transportEntryForUpdate); // returns true if updated
            try
            {
-               _context.Entry(partyEntryForUpdate).State = EntityState.Modified;
+               if(id != partyEntryForUpdate.ID)
+                   return BadRequest("ID mismatch between URL and payload.");
+
+               var existingParty = _context.Party.Find((short)id); // Ensure the entity is tracked by the context
+               if (existingParty == null)
+               {
+                   return NotFound("Party not found.");
+               }
+               
+                existingParty.Name = partyEntryForUpdate.Name;
+                existingParty.Code = partyEntryForUpdate.Code;       
+                existingParty.AddressLine1 = partyEntryForUpdate.AddressLine1;
+                existingParty.AddressLine2 = partyEntryForUpdate.AddressLine2;
+                existingParty.Mobile = partyEntryForUpdate.Mobile;
+                existingParty.Pincode = partyEntryForUpdate.Pincode;    
+                existingParty.AccountId = partyEntryForUpdate.AccountId;
+                existingParty.GstNo = partyEntryForUpdate.GstNo;
+                existingParty.OfficePhone = partyEntryForUpdate.OfficePhone;
+                existingParty.ContactPerson = partyEntryForUpdate.ContactPerson;
+                existingParty.IsActive = partyEntryForUpdate.IsActive.ToLower()== "true" ? true : false; 
+                _context.Party.Update(existingParty);
                await _context.SaveChangesAsync();
                return Ok("Party record updated and cache cleared.");
            }
@@ -134,7 +174,7 @@ namespace TransportService.Controllers.api
 
         //DELETE api/<SalesController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(long id)
+        public async Task<IActionResult> DeleteAsync(short id)
         {
            var party = await _context.Party.FindAsync(id);
            if (party == null)
@@ -145,6 +185,7 @@ namespace TransportService.Controllers.api
            await _context.SaveChangesAsync();
            return NoContent(); // 204
         }
+
 
         // [HttpGet("clearcache")]
         // public void InvalidateSalesCache(int pageSize, int maxPages)

@@ -22,6 +22,10 @@ namespace TransportService.DataAccess
 
         public DbSet<DestinationGroup> DestinationGroups { get; set; }
 
+        public DbSet<District> District { get; set; }
+
+        public DbSet<State> State { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TransportEntry>()
