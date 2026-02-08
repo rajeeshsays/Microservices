@@ -1,6 +1,6 @@
 public class LocationDTO
     {
-        public int ID { get; set; }
+        public int? ID { get; set; }
         public string Name { get; set; } = string.Empty;
 
         public string Code { get; set; } = string.Empty;
@@ -8,5 +8,5 @@ public class LocationDTO
 
         public string DistrictId { get; set; } = string.Empty;
 
-        public string IsActive { get; set; } = "true";
+        public bool IsActive { get; set; } = true;
     }   

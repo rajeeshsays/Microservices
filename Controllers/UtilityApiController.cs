@@ -69,9 +69,9 @@ namespace TransportService.Controllers.api
                                     where d.StateId == stateId
                                     select new
                                     {
-                                        d.ID,
-                                        d.Name,
-                                        d.StateId
+                                      value =   d.ID,
+                                      label  =   d.Name,
+                                        
                                     })
                                     .ToListAsync();
 

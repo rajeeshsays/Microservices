@@ -123,7 +123,7 @@ namespace TransportService.Controllers.api
 
                await _context.Location.AddAsync(locationEntity);  
                await _context.SaveChangesAsync();
-               return Ok("Location record created successfully.");
+               return Ok(locationEntity);
            }
            catch
            {
@@ -166,7 +166,8 @@ namespace TransportService.Controllers.api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(long id)
         {
-           var location = await _context.Location.FindAsync(id);
+           var location = _context.Location.Where(x=>x.ID == id).SingleOrDefault();
+
            if (location == null)
            {
                return NotFound(); // 404
