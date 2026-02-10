@@ -38,6 +38,10 @@ namespace TransportService.Controllers.api
         {
           // var transData = await _transportEntryDA.GetAsync(id); // Call DB
            //Set cache options
+
+      
+
+           
            var vehicle = await _context.Vehicle.Where(x => x.ID == id)
                                                  
               .SingleOrDefaultAsync();
@@ -57,7 +61,7 @@ namespace TransportService.Controllers.api
            }
         }
 
-        [HttpGet]
+        [HttpGet("getall/{page}/{pageSize}")]
         public async Task<IActionResult> GetAllAsync(int page, int pageSize)
         {
            if (_context == null)
@@ -135,7 +139,7 @@ namespace TransportService.Controllers.api
 
         //DELETE api/<SalesController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(long id)
+        public async Task<IActionResult> DeleteAsync(short id)
         {
            var driver = await _context.Driver.FindAsync(id);
            if (driver == null)

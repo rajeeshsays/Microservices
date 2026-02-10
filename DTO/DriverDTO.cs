@@ -10,6 +10,6 @@ public class DriverDTO
 
         public string? AddressLine2 {get;set;} = string.Empty;
 
-        public string LicenseNo { get; set; } = string.Empty;
+        public string LicenceNo { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
     }

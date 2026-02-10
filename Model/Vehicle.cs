@@ -17,7 +17,7 @@ namespace TransportService.Model
         public Int16 TypeId { get; set; }
 
         [ForeignKey("TypeId")]
-        public  VehicleType? VehicleType { get; set; }
+        public  virtual VehicleType? VehicleType { get; set; }
       
     }
 

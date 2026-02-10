@@ -131,7 +131,7 @@ namespace TransportService.Controllers.api
            {
                await _context.Driver.AddAsync(driverModel);  
                await _context.SaveChangesAsync();
-               return Ok("Driver record created successfully.");
+               return Ok(driverModel);
            }
            catch
            {
