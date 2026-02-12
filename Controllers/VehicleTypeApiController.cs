@@ -57,7 +57,7 @@ namespace TransportService.Controllers.api
            }
         }
 
-        [HttpGet]
+        [HttpGet("getall/{page}/{pageSize}")]
         public async Task<IActionResult> GetAllAsync(int page, int pageSize)
         {
            if (_context == null)
@@ -94,7 +94,8 @@ namespace TransportService.Controllers.api
            {
                await _context.VehicleType.AddAsync(vehicleTypeModel);  
                await _context.SaveChangesAsync();
-               return Ok("Vehicle type record created successfully.");
+ 
+               return Ok(vehicleTypeModel);
            }
            catch
            {
@@ -137,7 +138,7 @@ namespace TransportService.Controllers.api
 
         //DELETE api/<SalesController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(long id)
+        public async Task<IActionResult> DeleteAsync(short id)
         {
            var vehicleType = await _context.VehicleType.FindAsync(id);
            if (vehicleType == null)
@@ -147,6 +148,32 @@ namespace TransportService.Controllers.api
            _context.Entry(vehicleType).State = EntityState.Deleted;
            await _context.SaveChangesAsync();
            return NoContent(); // 204
+        }
+        
+        [HttpGet("GetVehicleType")]
+        public async Task<IActionResult> GetVehicleTypeAsync()
+        {
+              if (_context == null)
+                return StatusCode(500, "Database context is not available.");
+
+            var vehicleTypes = await (from d in _context.VehicleType
+                                  
+                                    select new
+                                    {
+                                      value =   d.ID,
+                                      label  =   d.Desc,
+                                        
+                                    })
+                                    .ToListAsync();
+
+            if (vehicleTypes != null && vehicleTypes.Count > 0)
+            {
+                return Ok(vehicleTypes);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // [HttpGet("clearcache")]

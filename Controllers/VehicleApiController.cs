@@ -141,7 +141,8 @@ namespace TransportService.Controllers.api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(short id)
         {
-           var driver = await _context.Driver.FindAsync(id);
+           var d = await _context.Vehicle.ToListAsync();
+           var driver = await _context.Vehicle.FindAsync(id);
            if (driver == null)
            {
                return NotFound(); // 404

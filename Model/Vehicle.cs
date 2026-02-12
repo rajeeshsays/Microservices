@@ -18,6 +18,9 @@ namespace TransportService.Model
 
         [ForeignKey("TypeId")]
         public  virtual VehicleType? VehicleType { get; set; }
+
+        public bool IsActive {get;set;}
+        
       
     }
 
@@ -30,6 +33,8 @@ namespace TransportService.Model
         public string Desc { get; set; } = string.Empty;
 
         public int AccountId { get; set; }
+
+        public bool IsActive {get;set;}
 
     }
 
